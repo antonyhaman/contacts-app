@@ -68,20 +68,19 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
                     contactListFiltered = mCachedGroups;
                 } else {
                     List<GroupsItem> filteredList = new ArrayList<>();
-                    List<PeopleItem> list;
+                    List<PeopleItem> tempList;
                     for (GroupsItem group : mCachedGroups) {
 
-                        list = new ArrayList<>();
+                        tempList = new ArrayList<>();
                         for (PeopleItem people : group.getPeople()) {
                             if (people.getFirstName().toLowerCase().contains(charString)
                                     || people.getLastName().toLowerCase().contains(charString)) {
-                                list.add(people);
+                                tempList.add(people);
                             }
                         }
-                        if (list.size() > 0) {
-                            List<PeopleItem> tempList = new ArrayList<>(list);
-                            filteredList.add(new GroupsItem(group.getTitle(), tempList));
-                            list.clear();
+                        if (tempList.size() > 0) {
+                            filteredList.add(new GroupsItem(group.getTitle(), new ArrayList<>(tempList)));
+                            tempList.clear();
                         }
                     }
                     contactListFiltered = filteredList;
@@ -94,7 +93,7 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                replaceData1((List<GroupsItem>) results.values);
+                replaceData((List<GroupsItem>) results.values, false);
             }
         };
     }
@@ -107,16 +106,10 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
         }
     }
 
-    public void replaceData(List<GroupsItem> groupsItems) {
-        mCachedGroups = groupsItems;
-        getGroups().clear();
-        ((List<GroupsItem>) getGroups()).addAll(groupsItems);
-        notifyGroupDataChanged();
-        notifyDataSetChanged();
-        expandAll();
-    }
-
-    public void replaceData1(List<GroupsItem> groupsItems) {
+    public void replaceData(List<GroupsItem> groupsItems, boolean replaceCache) {
+        if (replaceCache) {
+            mCachedGroups = groupsItems;
+        }
         getGroups().clear();
         ((List<GroupsItem>) getGroups()).addAll(groupsItems);
         notifyGroupDataChanged();

@@ -17,9 +17,9 @@ import android.widget.ProgressBar;
 
 import com.github.kotvertolet.contactsapp.R;
 import com.github.kotvertolet.contactsapp.data.pojo.GroupsItem;
-import com.github.kotvertolet.contactsapp.data.source.ContactsDataSource;
 import com.github.kotvertolet.contactsapp.data.source.ContactsRepository;
-import com.github.kotvertolet.contactsapp.data.source.remote.RemoteContactsDataSource;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     private static final String QUERY_KEY = "query";
 
     private ContactsAdapter mContactsAdapter;
-    private ContactsDataSource mContactsDataSource;
     private ContactsRepository mContactsRepository;
     private ContactsContract.Presenter mContactsPresenter;
     private RecyclerView mContactsRecycler;
@@ -46,8 +45,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
         setContentView(R.layout.activity_main);
         mContactsRecycler = findViewById(R.id.recycler_contacts);
         mProgressBar = findViewById(R.id.progress_bar);
-        mContactsDataSource = RemoteContactsDataSource.getInstance();
-        mContactsRepository = ContactsRepository.getInstance(mContactsDataSource);
+        mContactsRepository = ContactsRepository.getInstance();
         new ContactsPresenter(this, mContactsRepository);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -77,7 +75,9 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
         mContactsAdapter.onSaveInstanceState(outState);
         outState.putSerializable(ITEMS_KEY, (Serializable) mContactsAdapter.getGroups());
         outState.putSerializable(CACHE_KEY, (Serializable) mContactsAdapter.getMCachedGroups());
-        outState.putString(QUERY_KEY, mSearchView.getQuery().toString());
+        if (mSearchView != null && !StringUtils.isEmpty(mSearchView.getQuery())) {
+            outState.putString(QUERY_KEY, mSearchView.getQuery().toString());
+        }
     }
 
     @Override
@@ -96,6 +96,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
         mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setMaxWidth(Integer.MAX_VALUE);
+        mSearchView.setQueryHint(getString(R.string.menu_action_search));
         if (mRestoredQuery != null && !mRestoredQuery.isEmpty()) {
             mSearchView.setQuery(mRestoredQuery, false);
             mSearchView.setFocusable(true);
@@ -146,7 +147,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
 
     @Override
     public void showContacts(List<GroupsItem> contactGroupList) {
-        mContactsAdapter.replaceData(contactGroupList);
+        mContactsAdapter.replaceData(contactGroupList, true);
     }
 
     @Override

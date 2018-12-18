@@ -1,8 +1,8 @@
 package com.github.kotvertolet.contactsapp.data.pojo;
 
-import com.github.kotvertolet.contactsapp.custom.CustomExpandableGroup;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.kotvertolet.contactsapp.custom.CustomExpandableGroup;
 
 import java.io.Serializable;
 import java.util.List;

@@ -13,15 +13,13 @@ import retrofit2.Response;
 public class ContactsRepository implements ContactsDataSource {
 
     private static ContactsRepository sInstance;
-    private ContactsDataSource mContactsDataSource;
 
-    private ContactsRepository(ContactsDataSource contactsDataSource) {
-        mContactsDataSource = contactsDataSource;
+    private ContactsRepository() {
     }
 
-    public static synchronized ContactsRepository getInstance(@NonNull ContactsDataSource contactsDataSource) {
+    public static synchronized ContactsRepository getInstance() {
         if (sInstance == null) {
-            sInstance = new ContactsRepository(contactsDataSource);
+            sInstance = new ContactsRepository();
         }
         return sInstance;
     }
@@ -30,7 +28,7 @@ public class ContactsRepository implements ContactsDataSource {
     public void getContacts(@NonNull final LoadContactsCallback callback) {
         App.getWowApi().listContacts().enqueue(new Callback<ContactsResponse>() {
             @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+            public void onResponse(@NonNull Call<ContactsResponse> call, @NonNull Response<ContactsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onContactsLoaded(response.body());
                 } else {
