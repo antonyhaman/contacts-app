@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Contacts App</string>
-    <string name="contacts_loading_error">Error while loading contactsResponse, check your internet connection</string>
+    <string name="contacts_loading_error">Error while loading contact data, check your internet connection</string>
     <string name="menu_action_search">Search...</string>
     <string name="menu_action_refresh">Refresh</string>
     <string name="sample_group_title">Favorites</string>
