@@ -2,7 +2,7 @@ package com.github.kotvertolet.contactsapp.contacts;
 
 import com.github.kotvertolet.contactsapp.BasePresenter;
 import com.github.kotvertolet.contactsapp.BaseView;
-import com.github.kotvertolet.contactsapp.data.pojo.GroupsItem;
+import com.github.kotvertolet.contactsapp.data.pojo.ContactGroupItem;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface ContactsContract {
 
         void setLoadingIndicator(boolean show);
 
-        void showContacts(List<GroupsItem> contactGroupList);
+        void showContacts(List<ContactGroupItem> contactGroupList);
 
         void showLoadingContactsError();
 
@@ -20,7 +20,7 @@ public interface ContactsContract {
 
     interface Presenter extends BasePresenter {
 
-        void loadTasks(boolean forceUpdate);
+        void loadContacts(boolean forceUpdate);
 
     }
 

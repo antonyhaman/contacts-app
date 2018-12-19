@@ -8,8 +8,8 @@ import android.widget.Filterable;
 
 import com.github.kotvertolet.contactsapp.R;
 import com.github.kotvertolet.contactsapp.custom.CustomExpandableRecyclerViewAdapter;
-import com.github.kotvertolet.contactsapp.data.pojo.GroupsItem;
-import com.github.kotvertolet.contactsapp.data.pojo.PeopleItem;
+import com.github.kotvertolet.contactsapp.data.pojo.ContactGroupItem;
+import com.github.kotvertolet.contactsapp.data.pojo.ContactItem;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ import lombok.Setter;
 @Setter
 public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<ContactGroupViewHolder, ContactViewHolder> implements Filterable {
 
-    private List<GroupsItem> mCachedGroups;
+    private List<ContactGroupItem> mCachedGroups;
 
     public ContactsAdapter(List<? extends ExpandableGroup> groups) {
         super(groups);
-        mCachedGroups = (List<GroupsItem>) groups;
+        mCachedGroups = (List<ContactGroupItem>) groups;
     }
 
     @Override
@@ -43,8 +43,8 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
 
     @Override
     public void onBindChildViewHolder(ContactViewHolder holder, int flatPosition, ExpandableGroup group, int childIndex) {
-        PeopleItem peopleItem = ((GroupsItem) group).getPeople().get(childIndex);
-        holder.onBind(peopleItem);
+        ContactItem contactItem = ((ContactGroupItem) group).getPeople().get(childIndex);
+        holder.onBind(contactItem);
     }
 
     @Override
@@ -63,23 +63,23 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 String charString = constraint.toString().toLowerCase();
-                List<GroupsItem> contactListFiltered;
+                List<ContactGroupItem> contactListFiltered;
                 if (charString.isEmpty()) {
                     contactListFiltered = mCachedGroups;
                 } else {
-                    List<GroupsItem> filteredList = new ArrayList<>();
-                    List<PeopleItem> tempList;
-                    for (GroupsItem group : mCachedGroups) {
+                    List<ContactGroupItem> filteredList = new ArrayList<>();
+                    List<ContactItem> tempList;
+                    for (ContactGroupItem group : mCachedGroups) {
 
                         tempList = new ArrayList<>();
-                        for (PeopleItem people : group.getPeople()) {
+                        for (ContactItem people : group.getPeople()) {
                             if (people.getFirstName().toLowerCase().contains(charString)
                                     || people.getLastName().toLowerCase().contains(charString)) {
                                 tempList.add(people);
                             }
                         }
                         if (tempList.size() > 0) {
-                            filteredList.add(new GroupsItem(group.getTitle(), new ArrayList<>(tempList)));
+                            filteredList.add(new ContactGroupItem(group.getTitle(), new ArrayList<>(tempList)));
                             tempList.clear();
                         }
                     }
@@ -93,7 +93,7 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                replaceData((List<GroupsItem>) results.values, false);
+                replaceData((List<ContactGroupItem>) results.values, false);
             }
         };
     }
@@ -106,12 +106,12 @@ public class ContactsAdapter extends CustomExpandableRecyclerViewAdapter<Contact
         }
     }
 
-    public void replaceData(List<GroupsItem> groupsItems, boolean replaceCache) {
+    public void replaceData(List<ContactGroupItem> groupsItems, boolean replaceCache) {
         if (replaceCache) {
             mCachedGroups = groupsItems;
         }
         getGroups().clear();
-        ((List<GroupsItem>) getGroups()).addAll(groupsItems);
+        ((List<ContactGroupItem>) getGroups()).addAll(groupsItems);
         notifyGroupDataChanged();
         notifyDataSetChanged();
         expandAll();

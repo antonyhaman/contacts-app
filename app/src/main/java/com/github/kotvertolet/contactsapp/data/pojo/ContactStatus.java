@@ -8,16 +8,35 @@ import lombok.Getter;
 public enum ContactStatus {
 
     @JsonProperty("online")
-    ONLINE,
+    ONLINE("online"),
     @JsonProperty("offline")
-    OFFLINE,
+    OFFLINE("offline"),
     @JsonProperty("busy")
-    BUSY,
+    BUSY("busy"),
     @JsonProperty("away")
-    AWAY,
+    AWAY("away"),
     @JsonProperty("callforwarding")
-    CALL_FORWARDING,
+    CALL_FORWARDING("callforwarding"),
     @JsonProperty("pending")
-    PENDING
+    PENDING("pending");
 
+    private final String status;
+
+    ContactStatus(final String status) {
+        this.status = status;
+    }
+
+    public static ContactStatus fromString(String text) {
+        for (ContactStatus cs : ContactStatus.values()) {
+            if (cs.status.equalsIgnoreCase(text)) {
+                return cs;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return status;
+    }
 }

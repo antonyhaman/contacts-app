@@ -5,7 +5,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.kotvertolet.contactsapp.R;
-import com.github.kotvertolet.contactsapp.data.pojo.PeopleItem;
+import com.github.kotvertolet.contactsapp.data.pojo.ContactItem;
 import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder;
 
 import org.apache.commons.text.WordUtils;
@@ -25,16 +25,16 @@ public class ContactViewHolder extends ChildViewHolder {
         mImageViewProfileIcon = itemView.findViewById(R.id.image_profile_icon);
     }
 
-    public void onBind(PeopleItem peopleItem) {
-        setStatusIcon(peopleItem);
-        String contactTitle = String.format("%s %s", peopleItem.getFirstName(), peopleItem.getLastName());
+    public void onBind(ContactItem contactItem) {
+        setStatusIcon(contactItem);
+        String contactTitle = String.format("%s %s", contactItem.getFirstName(), contactItem.getLastName());
         mTextViewContactTitle.setText(WordUtils.capitalizeFully(contactTitle));
-        mTextViewContactStatus.setText(peopleItem.getStatusMessage());
+        mTextViewContactStatus.setText(contactItem.getStatusMessage());
         //TODO: mImageViewProfileIcon
     }
 
-    private void setStatusIcon(PeopleItem peopleItem) {
-        switch (peopleItem.getStatusIcon()) {
+    private void setStatusIcon(ContactItem contactItem) {
+        switch (contactItem.getStatusIcon()) {
             case ONLINE:
                 mImageViewStatusIcon.setImageResource(R.drawable.ic_contacts_list_status_online);
                 break;

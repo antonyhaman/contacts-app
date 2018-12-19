@@ -2,6 +2,8 @@ package com.github.kotvertolet.contactsapp.contacts;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +18,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.github.kotvertolet.contactsapp.R;
-import com.github.kotvertolet.contactsapp.data.pojo.GroupsItem;
-import com.github.kotvertolet.contactsapp.data.source.ContactsRepository;
+import com.github.kotvertolet.contactsapp.data.pojo.ContactGroupItem;
+import com.github.kotvertolet.contactsapp.data.source.ContactsDataSource;
+import com.github.kotvertolet.contactsapp.data.source.local.LocalContactsDataSource;
+import com.github.kotvertolet.contactsapp.data.source.remote.RemoteContactsDataSource;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,9 +36,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     private static final String QUERY_KEY = "query";
 
     private ContactsAdapter mContactsAdapter;
-    private ContactsRepository mContactsRepository;
     private ContactsContract.Presenter mContactsPresenter;
-    private RecyclerView mContactsRecycler;
     private SearchView mSearchView;
     private ProgressBar mProgressBar;
     private String mRestoredQuery;
@@ -43,10 +45,11 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mContactsRecycler = findViewById(R.id.recycler_contacts);
+        RecyclerView mContactsRecycler = findViewById(R.id.recycler_contacts);
         mProgressBar = findViewById(R.id.progress_bar);
-        mContactsRepository = ContactsRepository.getInstance();
-        new ContactsPresenter(this, mContactsRepository);
+        ContactsDataSource mLocalDataSource = LocalContactsDataSource.getInstance();
+        ContactsDataSource mRemoteDataSource = RemoteContactsDataSource.getInstance();
+        mContactsPresenter = new ContactsPresenter(this, mRemoteDataSource, mLocalDataSource);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,12 +61,12 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
         mContactsRecycler.addItemDecoration(dividerItemDecoration);
 
         if (savedInstanceState != null) {
-            List<GroupsItem> groupsItems = (List<GroupsItem>) savedInstanceState.getSerializable(ITEMS_KEY);
+            List<ContactGroupItem> groupsItems = (List<ContactGroupItem>) savedInstanceState.getSerializable(ITEMS_KEY);
             mContactsAdapter = new ContactsAdapter(groupsItems);
             mContactsRecycler.setAdapter(mContactsAdapter);
             setLoadingIndicator(false);
         } else {
-            mContactsAdapter = new ContactsAdapter(new ArrayList<GroupsItem>(0));
+            mContactsAdapter = new ContactsAdapter(new ArrayList<ContactGroupItem>(0));
             mContactsRecycler.setAdapter(mContactsAdapter);
             mContactsPresenter.start();
         }
@@ -84,7 +87,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mContactsAdapter.onRestoreInstanceState(savedInstanceState);
-        mContactsAdapter.setMCachedGroups((List<GroupsItem>) savedInstanceState.getSerializable(CACHE_KEY));
+        mContactsAdapter.setMCachedGroups((List<ContactGroupItem>) savedInstanceState.getSerializable(CACHE_KEY));
         mRestoredQuery = savedInstanceState.getString(QUERY_KEY);
     }
 
@@ -122,7 +125,7 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                mContactsPresenter.start();
+                mContactsPresenter.loadContacts(true);
                 break;
             case R.id.action_search:
                 break;
@@ -141,18 +144,22 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
 
     @Override
     public void setLoadingIndicator(boolean show) {
-        if (show) mProgressBar.setVisibility(View.VISIBLE);
-        else mProgressBar.setVisibility(View.GONE);
+        if (show) {
+            lockScreenOrientation();
+            mProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mProgressBar.setVisibility(View.GONE);
+            unlockScreenOrientation();
+        }
     }
 
     @Override
-    public void showContacts(List<GroupsItem> contactGroupList) {
+    public void showContacts(List<ContactGroupItem> contactGroupList) {
         mContactsAdapter.replaceData(contactGroupList, true);
     }
 
     @Override
     public void showLoadingContactsError() {
-        setLoadingIndicator(false);
         showMessage(getString(R.string.contacts_loading_error));
     }
 
@@ -163,5 +170,18 @@ public class ContactActivity extends AppCompatActivity implements ContactsContra
     @Override
     public void setPresenter(ContactsContract.Presenter presenter) {
         mContactsPresenter = presenter;
+    }
+
+    private void lockScreenOrientation() {
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
+    private void unlockScreenOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 }

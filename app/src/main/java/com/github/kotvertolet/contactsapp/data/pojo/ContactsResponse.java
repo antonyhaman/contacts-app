@@ -10,5 +10,5 @@ import lombok.Data;
 public class ContactsResponse {
 
     @JsonProperty("groups")
-    private List<GroupsItem> groups;
+    private List<ContactGroupItem> groups;
 }

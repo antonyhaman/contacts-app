@@ -4,7 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.kotvertolet.contactsapp.data.db.dto.ContactDto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,32 +14,30 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PeopleItem implements Parcelable {
+@AllArgsConstructor
+public class ContactItem implements Parcelable {
 
-    public static final Creator<PeopleItem> CREATOR = new Creator<PeopleItem>() {
+    public static final Creator<ContactItem> CREATOR = new Creator<ContactItem>() {
         @Override
-        public PeopleItem createFromParcel(Parcel in) {
-            return new PeopleItem(in);
+        public ContactItem createFromParcel(Parcel in) {
+            return new ContactItem(in);
         }
 
         @Override
-        public PeopleItem[] newArray(int size) {
-            return new PeopleItem[size];
+        public ContactItem[] newArray(int size) {
+            return new ContactItem[size];
         }
     };
     @JsonProperty("firstName")
     private String firstName;
-
     @JsonProperty("lastName")
     private String lastName;
-
     @JsonProperty("statusIcon")
     private ContactStatus statusIcon;
-
     @JsonProperty("statusMessage")
     private String statusMessage;
 
-    protected PeopleItem(Parcel in) {
+    protected ContactItem(Parcel in) {
         firstName = in.readString();
         lastName = in.readString();
         statusMessage = in.readString();
@@ -54,5 +54,9 @@ public class PeopleItem implements Parcelable {
         dest.writeString(lastName);
         dest.writeString(statusMessage);
         dest.writeSerializable(statusIcon);
+    }
+
+    public ContactDto toContactDto() {
+        return new ContactDto(firstName, lastName, statusIcon, statusMessage);
     }
 }
